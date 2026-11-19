@@ -15,7 +15,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    // origin: "http://localhost:5173",
+    origin: "https://code-forge2-0.vercel.app",
     credentials: true,
   })
 );
