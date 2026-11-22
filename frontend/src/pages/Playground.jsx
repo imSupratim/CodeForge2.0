@@ -1,214 +1,7 @@
-// import { useEffect, useState } from "react";
-// import Editor from "@monaco-editor/react";
-// import axios from "axios";
-// import { Play, Code2, Terminal, ChevronDown } from "lucide-react";
-
-// const languages = [
-//   {
-//     label: "Java",
-//     language: "java",
-//     version: "15.0.2",
-//     monaco: "java",
-//     boilerplate: `import java.util.*;
-// public class Main {
-//     public static void main(String[] args) {
-//         System.out.println("Hello World");
-//     }
-// }`,
-//   },
-//   {
-//     label: "Python",
-//     language: "python",
-//     version: "3.10.0",
-//     monaco: "python",
-//     boilerplate: `num = int(input())
-// print(num)`,
-//   },
-//   {
-//     label: "JavaScript",
-//     language: "javascript",
-//     version: "18.15.0",
-//     monaco: "javascript",
-//     boilerplate: `console.log("Hello World")`,
-//   },
-// ];
-
-// export default function Playground() {
-//   const [selectedLang, setSelectedLang] = useState(languages[0]);
-//   const [code, setCode] = useState(languages[0].boilerplate);
-//   const [input, setInput] = useState("");
-//   const [output, setOutput] = useState("");
-//   const [loading, setLoading] = useState(false);
-
-//   useEffect(() => {
-//     const lang = languages[0];
-//     setSelectedLang(lang);
-//     setCode(lang.boilerplate);
-//     setInput("");
-//     setOutput("");
-//   }, []);
-
-//   const runCode = async () => {
-//     setLoading(true);
-//     setOutput("Running...");
-
-//     try {
-//       const res = await axios.post("https://emkc.org/api/v2/piston/execute", {
-//         language: selectedLang.language,
-//         version: selectedLang.version,
-//         files: [{ name: "Main", content: code }],
-//         stdin: input,
-//       });
-
-//       setOutput(res.data.run.stdout || res.data.run.stderr || "No output");
-//     } catch (err) {
-//       setOutput("❌ Error running code");
-//       console.log(err.message)
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleLanguageChange = (e) => {
-//     const lang = languages.find((l) => l.language === e.target.value);
-//     setSelectedLang(lang);
-//     setCode(lang.boilerplate);
-//     setInput("");
-//     setOutput("");
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-[#0f172a] text-slate-300 flex flex-col font-sans">
-//       {/* Premium Header */}
-//       <header className="bg-[#1e293b]/50 backdrop-blur-md border-b border-slate-700/50 px-8 py-4 flex items-center justify-between sticky top-0 z-50">
-//         <div className="flex items-center gap-3">
-//           <div className="bg-indigo-500 p-1.5 rounded-lg shadow-lg shadow-indigo-500/20">
-//             <Code2 className="w-5 h-5 text-white" />
-//           </div>
-//           <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-//             Playground
-//           </h1>
-//         </div>
-
-//         <div className="flex items-center gap-4">
-//           <div className="relative group">
-//             <select
-//               value={selectedLang.language}
-//               onChange={handleLanguageChange}
-//               className="appearance-none bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 pr-10 text-sm font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer hover:bg-slate-700"
-//             >
-//               {languages.map((lang) => (
-//                 <option key={lang.language} value={lang.language}>
-//                   {lang.label}
-//                 </option>
-//               ))}
-//             </select>
-//             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-//           </div>
-
-//           <button
-//             onClick={runCode}
-//             disabled={loading}
-//             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-indigo-500/25 active:scale-95"
-//           >
-//             {loading ? (
-//               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-//             ) : (
-//               <Play className="w-4 h-4 fill-current" />
-//             )}
-//             {loading ? "Compiling..." : "Run Code"}
-//           </button>
-//         </div>
-//       </header>
-
-//       {/* Main Workspace */}
-//       <main className="flex-1 flex flex-col lg:flex-row gap-0 overflow-hidden">
-//         {/* Editor Section */}
-//         <section className="flex-1 flex flex-col border-r border-slate-800">
-//           <div className="flex items-center justify-between px-6 py-2 bg-[#1e293b]/30 border-b border-slate-800">
-//             <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
-//               Main.java
-//             </span>
-//             <span className="text-xs text-slate-500">Auto-save: ON</span>
-//           </div>
-//           <div className="flex-1 bg-[#1e293b]/20">
-//             <Editor
-//               height="100%"
-//               language={selectedLang.monaco}
-//               value={code}
-//               theme="vs-dark"
-//               onChange={(val) => setCode(val)}
-//               options={{
-//                 fontSize: 16,
-//                 fontFamily: "'Fira Code', monospace",
-//                 minimap: { enabled: false },
-//                 automaticLayout: true,
-//                 padding: { top: 20 },
-//                 lineNumbers: "on",
-//                 cursorSmoothCaretAnimation: "on",
-//                 smoothScrolling: true,
-//               }}
-//             />
-//           </div>
-//         </section>
-
-//         {/* Console / IO Section */}
-//         <section className="w-full lg:w-[450px] flex flex-col bg-[#0f172a]">
-//           {/* Input Area */}
-//           <div className="h-1/2 flex flex-col border-b border-slate-800">
-//             <div className="flex items-center gap-2 px-6 py-3 bg-[#1e293b]/30 border-b border-slate-800">
-//               <Terminal className="w-4 h-4 text-indigo-400" />
-//               <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-//                 Standard Input
-//               </span>
-//             </div>
-//             <textarea
-//               className="flex-1 w-full bg-[#0f172a] p-6 text-sm font-mono text-indigo-300 focus:outline-none resize-none placeholder:text-slate-700"
-//               placeholder="Input goes here..."
-//               value={input}
-//               onChange={(e) => setInput(e.target.value)}
-//             />
-//           </div>
-
-//           {/* Output Area */}
-//           <div className="h-1/2 flex flex-col">
-//             <div className="flex items-center gap-2 px-6 py-3 bg-[#1e293b]/30 border-b border-slate-800">
-//               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-//               <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-//                 Terminal Output
-//               </span>
-//             </div>
-//             <pre
-//               className={`flex-1 p-6 text-sm font-mono overflow-auto ${
-//                 output.includes("❌") ? "text-rose-400" : "text-emerald-400"
-//               }`}
-//             >
-//               {output || (
-//                 <span className="text-slate-700 italic">
-//                   Ready to execute...
-//                 </span>
-//               )}
-//             </pre>
-//           </div>
-//         </section>
-//       </main>
-
-//       {/* Footer / Status Bar */}
-//       <footer className="bg-[#1e293b] border-t border-slate-800 px-6 py-1.5 flex justify-between text-[10px] text-slate-500 font-medium uppercase tracking-tighter">
-//         <div className="flex gap-4">
-//           <span>Status: Ready</span>
-//           <span>Environment: Piston v2</span>
-//         </div>
-//         <div>UTF-8</div>
-//       </footer>
-//     </div>
-//   );
-// }
-
 import { useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
-import { Play, Code2, Terminal, ChevronDown } from "lucide-react";
+import { Play, Code2, Terminal, ChevronDown, IndentIncrease, Plus, Minus } from "lucide-react";
 
 const languages = [
   {
@@ -246,6 +39,7 @@ export default function Playground() {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [font, setFont] = useState(13);
 
   useEffect(() => {
     const lang = languages[0];
@@ -336,6 +130,13 @@ export default function Playground() {
     setOutput("");
   };
 
+  const increaseFont = () =>{
+    setFont(prev => prev+1);
+  }
+  const decreaseFont =()=>{
+    setFont(prev => prev-1);  
+  }
+
   return (
     <div className="h-screen bg-[#0f172a] text-slate-300 flex flex-col font-sans">
       {/* Premium Header */}
@@ -387,7 +188,10 @@ export default function Playground() {
                   ? "Main.py"
                   : "Main.js"}
             </span>
-            <span className="text-xs text-slate-500">Auto-save: ON</span>
+            <span className="text-xs flex gap-3">
+              <button className="bg-gray-600/50 rounded-2xl cursor-pointer active:scale-90" onClick={increaseFont}><Plus/></button>
+              <button className="bg-gray-600/50 rounded-2xl cursor-pointer active:scale-90" onClick={decreaseFont}><Minus/></button>
+            </span>
           </div>
           <div className="flex-1 bg-[#1e293b]/20">
             <Editor
@@ -397,7 +201,7 @@ export default function Playground() {
               theme="vs-dark"
               onChange={(val) => setCode(val)}
               options={{
-                fontSize: 13,
+                fontSize: font,
                 fontFamily: "'Fira Code', monospace",
                 minimap: { enabled: false },
                 automaticLayout: true,
