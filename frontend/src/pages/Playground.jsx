@@ -188,7 +188,7 @@ export default function Playground() {
                   ? "Main.py"
                   : "Main.js"}
             </span>
-            <span className="text-xs flex gap-3">
+            <span className="text-xs flex gap-5">
               <button className="bg-gray-600/50 rounded-2xl cursor-pointer active:scale-90" onClick={increaseFont}><Plus/></button>
               <button className="bg-gray-600/50 rounded-2xl cursor-pointer active:scale-90" onClick={decreaseFont}><Minus/></button>
             </span>
